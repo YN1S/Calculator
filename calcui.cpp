@@ -4,17 +4,11 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QDebug>
+#include "buttons.h"
 
 CalcUI::CalcUI(QWidget *parent)
-    : QWidget(parent),
-    _buttons({
-    {'#', {inputEraseAll, {2, 0}, {1, 1}}}, {'C', {inputErase,  {2, 1}, {1, 1}}}, {'%', {inputPercent, {2, 2}, {1, 1}}}, {'/', {inputOtherSign,  {2, 3}, {1, 1}}},
-    {'7', {inputNumber,   {3, 0}, {1, 1}}}, {'8', {inputNumber, {3, 1}, {1, 1}}}, {'9', {inputNumber,  {3, 2}, {1, 1}}}, {'*', {inputOtherSign,  {3, 3}, {1, 1}}},
-    {'4', {inputNumber,   {4, 0}, {1, 1}}}, {'5', {inputNumber, {4, 1}, {1, 1}}}, {'6', {inputNumber,  {4, 2}, {1, 1}}}, {'-', {inputOtherSign,      {4, 3}, {1, 1}}},
-    {'1', {inputNumber,   {5, 0}, {1, 1}}}, {'2', {inputNumber, {5, 1}, {1, 1}}}, {'3', {inputNumber,  {5, 2}, {1, 1}}}, {'+', {inputOtherSign,  {5, 3}, {1, 1}}},
-    {'0', {inputNumber,   {6, 0}, {1, 2}}},                                       {'.', {inputDot,     {6, 2}, {1, 1}}}, {'=', {inputEqual,      {6, 3}, {1, 1}}}
-
-}) {
+    : QWidget(parent)
+{
     connect(&logic, &CalcLogic::ResultOfProcessing, this, &CalcUI::getResultsOfProcessing);
     setLayout(createLayout());
 }
@@ -28,20 +22,30 @@ QGridLayout *CalcUI::createLayout()
     pUIGridLayout->addWidget(_displayAnswer, 1, 0, 1, 4);
 
 
-    for(const auto [button, info] : _buttons){
-        pUIGridLayout->addWidget(createButton(button), info.position.first, info.position.second, info.size.first, info.size.second);
-    }
+    createButtonsFromContainer(pUIGridLayout, buttonsNameNumber, buttonsInfoNumber);
+    createButtonsFromContainer(pUIGridLayout, buttonsNameSign,   buttonsInfoSign);
+    createButtonsFromContainer(pUIGridLayout, buttonsNameOther,  buttonsInfoOther);
 
     return pUIGridLayout;
 }
 
-QPushButton *CalcUI::createButton(const QChar &str)
+QPushButton *CalcUI::createButton(const QString &str, State state)
 {
     QPushButton* pcmd = new QPushButton{str};
+    pcmd->setObjectName(str);
     pcmd->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    buttonAndState.insert({pcmd, _buttons.at(str).state});
+    buttonAndState.insert({pcmd, state});
     connect(pcmd, &QPushButton::clicked, this, &CalcUI::sendButtonToLogic);
     return pcmd;
+}
+
+void CalcUI::createButtonsFromContainer(QGridLayout* gridLayout, const std::vector<QString> &buttonsName, const std::vector<ButtonInfo> &buttonsInfo)
+{
+    for(int i{0}; i < buttonsName.size(); ++i)
+    {
+        gridLayout->addWidget(createButton(buttonsName[i], buttonsInfo[i].state), buttonsInfo[i].row,     buttonsInfo[i].column,
+                                                                                  buttonsInfo[i].rowSpan, buttonsInfo[i].columnSpan);
+    }
 }
 
 void CalcUI::setDisplayParameters()
@@ -61,10 +65,9 @@ void CalcUI::setDisplayParameters()
 
 void CalcUI::sendButtonToLogic()
 {
-    QPushButton *button = qobject_cast<QPushButton *>(sender());
+    QObject *button = sender();
 
-    QString letter = button->text();
-    logic.calculator(letter.at(0), buttonAndState.at(button));
+    logic.calculator(button->objectName(), buttonAndState.at(button));
 }
 
 void CalcUI::getResultsOfProcessing(QString AllSolution, QString result)

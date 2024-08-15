@@ -2,158 +2,184 @@
 #include <QDebug>
 
 CalcLogic::CalcLogic(QObject *parent)
-    : QObject(parent),
-    _stateToFunc{
-        {State::inputDot,       [this](QChar dummy) { Dot(dummy);      }},
-        {State::inputNumber,    [this](QChar num)   { Num(num);        }},
-        {State::inputOtherSign, [this](QChar sign)  { Sign(sign);      }},
-        {State::inputEraseAll,  [this](QChar dummy) { EraseAll(dummy); }},
-        {State::inputErase,     [this](QChar dummy) { Erase(dummy);    }},
-        {State::inputPercent,   [this](QChar dummy) { Percent(dummy);  }},
-        {State::inputEqual,     [this](QChar dummy) { Equal(dummy);    }}
-    }
-{ }
+    : QObject(parent)
+{ };
 
-void CalcLogic::calculator(QChar str, State state)
+void CalcLogic::calculator(QString str, State state)
 {
     if (_stateToFunc.count(state)) {
         _stateToFunc[state](str);
     }
 
-    qDebug() << _number1 + _sign + _number2;
-    emit ResultOfProcessing(_allSolutiion, _result);
+    qDebug() << _number1 << _sign << _number2;
+    emit ResultOfProcessing(_allSolution, _result);
 }
 
-void CalcLogic::Num(QChar num)
+void CalcLogic::Num(QString num)
 {
-    if(_number2 == '0'){
-        _number2.back() = num;
-    }
-    else{
-        _number2.push_back(num);
-    }
+    _inputNumberDependsDot[_dotPressed](num);
 
-    if(_allSolutiion == '0'){
-        _allSolutiion.back() = num;
+    if(_number2 != 0)
+    {
+        _allSolution.push_back(num);
     }
-    else{
-        _allSolutiion.push_back(num);
-    }
-    EqualForSolution();
 }
 
-void CalcLogic::Sign(QChar sign)
+void CalcLogic::Sign(QString sign)
 {
-    if(!_number1.isEmpty() && !_number2.isEmpty()){
+    if(_number1 != 0 && _number2 != 0){
         EquelForSign();
     }
 
     if (_sign == '\0'){
         _number1 = _number2;
-        _number2.clear();
+        _number2 = 0;
 
-        _allSolutiion.push_back(sign);
+        _allSolution.push_back(sign);
         _sign = sign;
+        _dotPressed = false;
+        _degreeForDot = 10;
     }
     else{
         _sign = sign;
-        _allSolutiion.back() = sign;
+        _allSolution.back() = sign[0];
     }
+
 }
 
-void CalcLogic::Dot(QChar)
+void CalcLogic::Dot(QString)
 {
-    if(std::find(_number2.begin(), _number2.end(), '.') == _number2.end()){
-        if((_number2 == '0' || _number2.isEmpty()) && _allSolutiion.back() != '0'){
-            _allSolutiion.push_back('0');
+    if(!_dotPressed)
+    {
+        _dotPressed = true;
+
+        if(_allSolution.isEmpty() || _allSolution.back() == _sign[0])
+        {
+            _allSolution.push_back('0');
         }
-        _number2.push_back('.');
-        _allSolutiion.push_back('.');
+
+        _allSolution.push_back('.');
     }
 }
 
-void CalcLogic::Erase(QChar)
+void CalcLogic::Erase(QString)
 {
-    if(!_number2.isEmpty()){
-        _allSolutiion.chop(1);
-        _number2.chop(1);
+    if(!_allSolution.isEmpty() && _allSolution.back() == '.')
+    {
+        _allSolution.chop(1);
+        _dotPressed = false;
+    }
+    if(_number2 != 0)
+    {
+        _allSolution.chop(1);
+        QString number_in_qstring = QString::number(_number2).back();
+        double number = number_in_qstring.toDouble();
+
+
+        if(_dotPressed)
+        {
+            qDebug() << number /_degreeForDot*10;
+            _number2 -= number / _degreeForDot *10;
+            _degreeForDot /= 10;
+        }
+
+        else
+        {
+            _number2 = static_cast<int>(_number2/10);
+        }
     }
 }
 
-void CalcLogic::EraseAll(QChar)
+void CalcLogic::EraseAll(QString)
 {
-    _number1 = '0';
-    _number2 = '0';
+    _number1 = 0;
+    _number2 = 0;
     _sign = '\0';
 
-    _allSolutiion.clear();
+    _allSolution.clear();
     _result.clear();
+
+    _dotPressed = false;
+    _degreeForDot = 10;
 }
 
-void CalcLogic::EqualForSolution()
+void CalcLogic::EqualForSolution(QString sign)
 {
-    if(!_number1.isEmpty() && !_number1.isEmpty() && _sign != '\0'){
-        switch (_sign.unicode()) {
-        case '+':
-            _result = QString::number(_number1.toDouble() + _number2.toDouble());
-            break;
-        case '-':
-            _result = QString::number(_number1.toDouble() - _number2.toDouble());
-            break;
-        case '*':
-            _result = QString::number(_number1.toDouble() * _number2.toDouble());
-            break;
-        case '/':
-            if (_number2.toDouble() != 0)
-                _result = QString::number(_number1.toDouble() / _number2.toDouble());
-            else{
-                _result = "Error";
-            }
-            break;
-        default:
-            _result = "Error";  // Обработка неизвестного оператора
-            break;
-        }
-    }
+    _signToFunc[sign](sign);
+    _dotPressed = false;
+    _degreeForDot = 10;
 }
 
 void CalcLogic::EquelForSign()
 {
-    EqualForSolution();
-    if(!_number1.isEmpty() && !_number1.isEmpty() && _sign != '\0'){
+    EqualForSolution(_sign);
+    if(_number1 != 0 && _number1 != 0  && _sign != '\0'){
         _sign = '\0';
-        _number2 = _result;
+        _number2 = _result.toDouble();
     }
 }
 
-void CalcLogic::Equal(QChar){
-    EqualForSolution();
-    _allSolutiion = _result;
+void CalcLogic::Equal(QString)
+{
+    EqualForSolution(_sign);
+    _allSolution = _result;
+
+    _number2 = _result.toDouble();
+    _number1 = 0;
+    _sign = '\0';
 }
 
-void CalcLogic::Percent(QChar)
+void CalcLogic::dotPressed(QString num)
 {
-     _allSolutiion.chop(_number2.size());
-    if(_number1 == '0')
+    _number2 = _number2 + num.toDouble() / _degreeForDot;
+    _degreeForDot *= 10;
+}
+
+void CalcLogic::dotNotPressed(QString num)
+{
+    _number2 = _number2*10 + num.toDouble();
+}
+
+void CalcLogic::plus(QString)
+{
+    _result = QString::number(_number1 + _number2);
+}
+
+void CalcLogic::minus(QString)
+{
+    _result = QString::number(_number1 - _number2);
+}
+
+void CalcLogic::divide(QString)
+{
+
+    if (_number2 != 0)
+        _result = QString::number(_number1 / _number2);
+    else
+        _result = "Error";
+}
+
+void CalcLogic::multiply(QString)
+{
+    _result = QString::number(_number1 * _number2);
+}
+
+
+void CalcLogic::Percent(QString)
+{
+    _allSolution.chop(QString::number(_number2).size());
+    if(_number1 == 0)
     {
-        _number2 = QString::number(_number2.toDouble() / 100);
+        _number2 /= 100;
+    }
+    else if(_sign == "/" || _sign == "*")
+    {
+        _number2 /= 100;
     }
     else
     {
-        switch(_sign.unicode())
-        {
-        case '/':
-        case '*':
-            // _allSolutiion.chop(_number2.size());
-            _number2 = QString::number(_number2.toDouble() / 100);
-            break;
-        case '+':
-        case '-':
-            // _allSolutiion.chop(_number2.size());
-            _number2 = QString::number(_number1.toDouble() * (_number2.toDouble() / 100));
-            break;
-        }
+        _number2 *= _number1 / 100;
     }
-    _allSolutiion.push_back(_number2);
-    // setSolutionAndResult();
+
+    _allSolution.push_back(QString::number(_number2));
 }

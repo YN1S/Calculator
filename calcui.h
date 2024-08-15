@@ -25,11 +25,11 @@ private: // Переменные
     QLineEdit* _displaySolving;
     QLabel* _displayAnswer;
     std::map<QObject*, State> buttonAndState;
-    std::map<QChar, ButtonInfo> _buttons;
 
 private: // Функции
     QGridLayout* createLayout();
-    QPushButton* createButton(const QChar &str);
+    QPushButton* createButton(const QString &str, State state);
+    void createButtonsFromContainer(QGridLayout *gridLayout, const std::vector<QString>& buttonsName, const std::vector<ButtonInfo>& buttonsInfo);
     void setDisplayParameters();
 
 public slots:

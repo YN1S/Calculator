@@ -6,8 +6,10 @@
 struct ButtonInfo
 {
     State state;
-    std::pair<int, int> position;
-    std::pair<int, int> size;
+    int row;
+    int column;
+    int rowSpan;
+    int columnSpan;
 };
 
 #endif // BUTTONINFO_H

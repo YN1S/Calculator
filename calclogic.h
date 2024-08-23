@@ -27,29 +27,29 @@ private:
     int _degreeForDot{10};
 
     std::map<State, ptrFunc> _stateToFunc
-    {
-        {State::inputDot,       [this](QString dummy) { Dot(dummy);      }},
-        {State::inputNumber,    [this](QString num)   { Num(num);        }},
-        {State::inputOtherSign, [this](QString sign)  { Sign(sign);      }},
-        {State::inputEraseAll,  [this](QString dummy) { EraseAll(dummy); }},
-        {State::inputErase,     [this](QString dummy) { Erase(dummy);    }},
-        {State::inputPercent,   [this](QString dummy) { Percent(dummy);  }},
-        {State::inputEqual,     [this](QString dummy) { Equal(dummy);    }}
-    };
+        {
+            {State::inputDot,       [this](QString dummy) { Dot(dummy);      }},
+            {State::inputNumber,    [this](QString num)   { Num(num);        }},
+            {State::inputOtherSign, [this](QString sign)  { Sign(sign);      }},
+            {State::inputEraseAll,  [this](QString dummy) { EraseAll(dummy); }},
+            {State::inputErase,     [this](QString dummy) { Erase(dummy);    }},
+            {State::inputPercent,   [this](QString dummy) { Percent(dummy);  }},
+            {State::inputEqual,     [this](QString dummy) { Equal(dummy);    }}
+        };
 
     std::map<bool, ptrFunc> _inputNumberDependsDot
-    {
-        {true, [this](QString num) { dotPressed(num);    }},
-        {false,[this](QString num) { dotNotPressed(num); }},
-    };
+        {
+         {true, [this](QString num) { dotPressed(num);    }},
+         {false,[this](QString num) { dotNotPressed(num); }},
+         };
 
     std::map<QString, ptrFunc> _signToFunc
-    {
-        {"+", [this](QString dummy){ plus(dummy); }},
-        {"-", [this](QString dummy){ minus(dummy); }},
-        {"*", [this](QString dummy){ multiply(dummy); }},
-        {"/", [this](QString dummy){ divide(dummy); }}
-    };
+        {
+            {"+", [this](QString dummy){ plus(dummy); }},
+            {"-", [this](QString dummy){ minus(dummy); }},
+            {"*", [this](QString dummy){ multiply(dummy); }},
+            {"/", [this](QString dummy){ divide(dummy); }}
+        };
 
 public:
     void calculator(QString str, State state);

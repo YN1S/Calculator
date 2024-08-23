@@ -44,7 +44,7 @@ void CalcUI::createButtonsFromContainer(QGridLayout* gridLayout, const std::vect
     for(int i{0}; i < buttonsName.size(); ++i)
     {
         gridLayout->addWidget(createButton(buttonsName[i], buttonsInfo[i].state), buttonsInfo[i].row,     buttonsInfo[i].column,
-                                                                                  buttonsInfo[i].rowSpan, buttonsInfo[i].columnSpan);
+                              buttonsInfo[i].rowSpan, buttonsInfo[i].columnSpan);
     }
 }
 

@@ -43,64 +43,64 @@
 // };
 
 std::vector<QString> buttonsName
-{
-    "AC", "C", "%", "/",
-    "7" , "8", "9", "*",
-    "4" , "5", "6", "-",
-    "1" , "2", "3", "+",
-    "0" ,      ".", "="
-};
+    {
+        "AC", "C", "%", "/",
+        "7" , "8", "9", "*",
+        "4" , "5", "6", "-",
+        "1" , "2", "3", "+",
+        "0" ,      ".", "="
+    };
 
 std::vector<QString> buttonsNameNumber
-{
-    "7" , "8", "9",
-    "4" , "5", "6",
-    "1" , "2", "3",
-    "0"
-};
+    {
+        "7" , "8", "9",
+        "4" , "5", "6",
+        "1" , "2", "3",
+        "0"
+    };
 
 std::vector<ButtonInfo> buttonsInfoNumber
-{
-    {inputNumber,   3, 0, 1, 1}, {inputNumber, 3, 1, 1, 1}, {inputNumber,  3, 2, 1, 1},
-    {inputNumber,   4, 0, 1, 1}, {inputNumber, 4, 1, 1, 1}, {inputNumber,  4, 2, 1, 1},
-    {inputNumber,   5, 0, 1, 1}, {inputNumber, 5, 1, 1, 1}, {inputNumber,  5, 2, 1, 1},
-    {inputNumber,   6, 0, 1, 2}
-};
+    {
+        {inputNumber,   3, 0, 1, 1}, {inputNumber, 3, 1, 1, 1}, {inputNumber,  3, 2, 1, 1},
+        {inputNumber,   4, 0, 1, 1}, {inputNumber, 4, 1, 1, 1}, {inputNumber,  4, 2, 1, 1},
+        {inputNumber,   5, 0, 1, 1}, {inputNumber, 5, 1, 1, 1}, {inputNumber,  5, 2, 1, 1},
+        {inputNumber,   6, 0, 1, 2}
+    };
 
 
 std::vector<QString> buttonsNameSign
-{
-    "/",
-    "*",
-    "+",
-    "-"
-};
+    {
+        "/",
+        "*",
+        "+",
+        "-"
+    };
 
 std::vector<ButtonInfo> buttonsInfoSign
-{
-    {inputOtherSign,  2, 3, 1, 1},
-    {inputOtherSign,  3, 3, 1, 1},
-    {inputOtherSign,  4, 3, 1, 1},
-    {inputOtherSign,  5, 3, 1, 1}
-};
+    {
+        {inputOtherSign,  2, 3, 1, 1},
+        {inputOtherSign,  3, 3, 1, 1},
+        {inputOtherSign,  4, 3, 1, 1},
+        {inputOtherSign,  5, 3, 1, 1}
+    };
 
 std::vector<QString> buttonsNameOther
-{
-    "AC", "C", "%", ".", "="
-};
+    {
+        "AC", "C", "%", ".", "="
+    };
 
 std::vector<ButtonInfo> buttonsInfoOther
-{
-    {inputEraseAll, 2, 0, 1, 1}, {inputErase,  2, 1, 1, 1}, {inputPercent, 2, 2, 1, 1}, {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
-};
+    {
+        {inputEraseAll, 2, 0, 1, 1}, {inputErase,  2, 1, 1, 1}, {inputPercent, 2, 2, 1, 1}, {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
+    };
 
 std::vector<ButtonInfo> buttonsInfo
-{
-    {inputEraseAll, 2, 0, 1, 1}, {inputErase,  2, 1, 1, 1}, {inputPercent, 2, 2, 1, 1}, {inputOtherSign,  2, 3, 1, 1},
-    {inputNumber,   3, 0, 1, 1}, {inputNumber, 3, 1, 1, 1}, {inputNumber,  3, 2, 1, 1}, {inputOtherSign,  3, 3, 1, 1},
-    {inputNumber,   4, 0, 1, 1}, {inputNumber, 4, 1, 1, 1}, {inputNumber,  4, 2, 1, 1}, {inputOtherSign,  4, 3, 1, 1},
-    {inputNumber,   5, 0, 1, 1}, {inputNumber, 5, 1, 1, 1}, {inputNumber,  5, 2, 1, 1}, {inputOtherSign,  5, 3, 1, 1},
-    {inputNumber,   6, 0, 1, 2},                            {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
-};
+    {
+        {inputEraseAll, 2, 0, 1, 1}, {inputErase,  2, 1, 1, 1}, {inputPercent, 2, 2, 1, 1}, {inputOtherSign,  2, 3, 1, 1},
+        {inputNumber,   3, 0, 1, 1}, {inputNumber, 3, 1, 1, 1}, {inputNumber,  3, 2, 1, 1}, {inputOtherSign,  3, 3, 1, 1},
+        {inputNumber,   4, 0, 1, 1}, {inputNumber, 4, 1, 1, 1}, {inputNumber,  4, 2, 1, 1}, {inputOtherSign,  4, 3, 1, 1},
+        {inputNumber,   5, 0, 1, 1}, {inputNumber, 5, 1, 1, 1}, {inputNumber,  5, 2, 1, 1}, {inputOtherSign,  5, 3, 1, 1},
+        {inputNumber,   6, 0, 1, 2},                            {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
+    };
 
 #endif // BUTTONS_H

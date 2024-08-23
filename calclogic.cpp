@@ -3,7 +3,7 @@
 
 CalcLogic::CalcLogic(QObject *parent)
     : QObject(parent)
-{ };
+    { };
 
 void CalcLogic::calculator(QString str, State state)
 {

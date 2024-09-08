@@ -1,12 +1,15 @@
+// calclogic.h
+
 #ifndef CALCLOGIC_H
 #define CALCLOGIC_H
 
 #include <QString>
 #include <map>
 #include <QObject>
+#include <functional> // include for std::function
 #include "state.h"
 
-typedef std::function<void(QString)> ptrFunc;
+typedef std::function<void(QObject&, State)> ptrFunc;  // Изменяем typedef для использования QObject
 
 class CalcLogic : public QObject
 {
@@ -21,60 +24,65 @@ private:
     double _number2{0};
 
     QString _allSolution;
-    QString _result;
+    double _result;
 
     bool _dotPressed{false};
     int _degreeForDot{10};
 
+    State _currentOperator = State::notSelected;
+    State _previoutState = State::notSelected;
+
     std::map<State, ptrFunc> _stateToFunc
         {
-            {State::inputDot,       [this](QString dummy) { Dot(dummy);      }},
-            {State::inputNumber,    [this](QString num)   { Num(num);        }},
-            {State::inputOtherSign, [this](QString sign)  { Sign(sign);      }},
-            {State::inputEraseAll,  [this](QString dummy) { EraseAll(dummy); }},
-            {State::inputErase,     [this](QString dummy) { Erase(dummy);    }},
-            {State::inputPercent,   [this](QString dummy) { Percent(dummy);  }},
-            {State::inputEqual,     [this](QString dummy) { Equal(dummy);    }}
+            {State::inputDot,         [this](QObject& dummy, State state) { Dot(dummy,      state); }},
+            {State::inputNumber,      [this](QObject& num,   State state) { Num(num,        state); }},
+            {State::operatorPlus,     [this](QObject& sign,  State state) { Sign(sign,      state); }},
+            {State::operatorMinus,    [this](QObject& sign,  State state) { Sign(sign,      state); }},
+            {State::operatorMultiply, [this](QObject& sign,  State state) { Sign(sign,      state); }},
+            {State::operatorDivide,   [this](QObject& sign,  State state) { Sign(sign,      state); }},
+            {State::inputEraseAll,    [this](QObject& dummy, State state) { EraseAll(dummy, state); }},
+            {State::inputErase,       [this](QObject& dummy, State state) { Erase(dummy,    state); }},
+            {State::inputPercent,     [this](QObject& dummy, State state) { Percent(dummy,  state); }},
+            {State::inputEqual,       [this](QObject& dummy, State state) { Equal(dummy,    state); }}
         };
 
     std::map<bool, ptrFunc> _inputNumberDependsDot
         {
-         {true, [this](QString num) { dotPressed(num);    }},
-         {false,[this](QString num) { dotNotPressed(num); }},
-         };
+            {true,  [this](QObject& num, State state) { dotPressed(num);    }},
+            {false, [this](QObject& num, State state) { dotNotPressed(num); }},
+        };
 
-    std::map<QString, ptrFunc> _signToFunc
+    std::map<State, ptrFunc> _operatorToFunc
         {
-            {"+", [this](QString dummy){ plus(dummy); }},
-            {"-", [this](QString dummy){ minus(dummy); }},
-            {"*", [this](QString dummy){ multiply(dummy); }},
-            {"/", [this](QString dummy){ divide(dummy); }}
+            {State::operatorPlus,     [this](QObject& dummy, State state){ plus(dummy);     }},
+            {State::operatorMinus,    [this](QObject& dummy, State state){ minus(dummy);    }},
+            {State::operatorMultiply, [this](QObject& dummy, State state){ multiply(dummy); }},
+            {State::operatorDivide,   [this](QObject& dummy, State state){ divide(dummy);   }}
         };
 
 public:
-    void calculator(QString str, State state);
+    void calculator(QObject* str, State state);
 
 private:
-    void Num(QString num);
-    void Sign(QString sign);
+    void Num(QObject& num, State);
 
-    // void Minus(QChar dummy);
-    void Dot(QString dummy);
-    void Erase(QString dummy);
-    void EraseAll(QString dummy);
-    void Percent(QString dummy);
-    void Equal(QString dummy);
+    void Sign(QObject&, State);
+    void Dot(QObject&, State);
+    void Erase(QObject&, State state);
+    void EraseAll(QObject&, State);
+    void Percent(QObject&, State);
+    void Equal(QObject&, State);
 
-    void EqualForSolution(QString sign);
+    void EqualForSolution(QObject& sign);
     void EquelForSign();
 
-    void dotPressed(QString num);
-    void dotNotPressed(QString num);
+    void dotPressed(QObject& num);
+    void dotNotPressed(QObject& num);
 
-    void plus(QString);
-    void minus(QString);
-    void divide(QString);
-    void multiply(QString);
+    void plus(QObject& dummy);
+    void minus(QObject& dummy);
+    void divide(QObject& dummy);
+    void multiply(QObject& dummy);
 
 signals:
     void ResultOfProcessing(QString AllSolution, QString result);

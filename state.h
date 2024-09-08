@@ -5,12 +5,17 @@ enum State
 {
     inputNumber,
     inputMinus,
-    inputOtherSign,
     inputDot,
     inputErase,
     inputEraseAll,
     inputEqual,
-    inputPercent
+    inputPercent,
+
+    operatorDivide,
+    operatorPlus,
+    operatorMinus,
+    operatorMultiply,
+    notSelected
 };
 
 #endif // STATE_H

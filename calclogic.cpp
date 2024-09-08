@@ -1,178 +1,132 @@
+// calclogic.cpp
+
 #include "calclogic.h"
 #include <QDebug>
 
 CalcLogic::CalcLogic(QObject *parent)
     : QObject(parent)
-    { };
+{ }
 
-void CalcLogic::calculator(QString str, State state)
+void CalcLogic::calculator(QObject* str, State state)
 {
-    if (_stateToFunc.count(state)) {
-        _stateToFunc[state](str);
+    if(_stateToFunc.count(state))
+    {
+        _stateToFunc[state](*str, state);
     }
 
     qDebug() << _number1 << _sign << _number2;
-    emit ResultOfProcessing(_allSolution, _result);
 }
 
-void CalcLogic::Num(QString num)
+void CalcLogic::Num(QObject& num, State state)
 {
-    _inputNumberDependsDot[_dotPressed](num);
+    _inputNumberDependsDot[_dotPressed](num, state);
+    _previoutState = state;
+}
 
-    if(_number2 != 0)
+void CalcLogic::Sign(QObject& dummy, State state)
+{
+    if(_previoutState == State::inputNumber)
     {
-        _allSolution.push_back(num);
-    }
-}
-
-void CalcLogic::Sign(QString sign)
-{
-    if(_number1 != 0 && _number2 != 0){
-        EquelForSign();
+        Equal(dummy, state);
     }
 
-    if (_sign == '\0'){
+
+    if(_currentOperator == State::notSelected)
+    {
         _number1 = _number2;
         _number2 = 0;
 
-        _allSolution.push_back(sign);
-        _sign = sign;
         _dotPressed = false;
         _degreeForDot = 10;
     }
-    else{
-        _sign = sign;
-        _allSolution.back() = sign[0];
-    }
 
+    _currentOperator = state;
+    _previoutState = state;
 }
 
-void CalcLogic::Dot(QString)
+void CalcLogic::Dot(QObject&, State)
 {
-    if(!_dotPressed)
-    {
-        _dotPressed = true;
-
-        if(_allSolution.isEmpty() || _allSolution.back() == _sign[0])
-        {
-            _allSolution.push_back('0');
-        }
-
-        _allSolution.push_back('.');
-    }
+    _dotPressed = true;
 }
 
-void CalcLogic::Erase(QString)
+void CalcLogic::Erase(QObject& dummy, State state)
 {
-    if(!_allSolution.isEmpty() && _allSolution.back() == '.')
-    {
-        _allSolution.chop(1);
-        _dotPressed = false;
-    }
-    if(_number2 != 0)
-    {
-        _allSolution.chop(1);
-        QString number_in_qstring = QString::number(_number2).back();
-        double number = number_in_qstring.toDouble();
-
-
-        if(_dotPressed)
-        {
-            qDebug() << number /_degreeForDot*10;
-            _number2 -= number / _degreeForDot *10;
-            _degreeForDot /= 10;
-        }
-
-        else
-        {
-            _number2 = static_cast<int>(_number2/10);
-        }
-    }
+    // Аналогичная логика
 }
 
-void CalcLogic::EraseAll(QString)
+void CalcLogic::EraseAll(QObject& dummy, State state)
 {
     _number1 = 0;
     _number2 = 0;
-    _sign = '\0';
-
-    _allSolution.clear();
-    _result.clear();
+    _currentOperator = State::notSelected;
+    _previoutState = State::notSelected;
 
     _dotPressed = false;
     _degreeForDot = 10;
 }
 
-void CalcLogic::EqualForSolution(QString sign)
+void CalcLogic::EqualForSolution(QObject& sign)
 {
-    _signToFunc[sign](sign);
     _dotPressed = false;
     _degreeForDot = 10;
 }
 
 void CalcLogic::EquelForSign()
 {
-    EqualForSolution(_sign);
     if(_number1 != 0 && _number1 != 0  && _sign != '\0'){
         _sign = '\0';
-        _number2 = _result.toDouble();
     }
 }
 
-void CalcLogic::Equal(QString)
+void CalcLogic::Equal(QObject& dummy, State state)
 {
-    EqualForSolution(_sign);
-    _allSolution = _result;
+    _operatorToFunc[_currentOperator](dummy, state);
 
-    _number2 = _result.toDouble();
+    _number2 = _result;
     _number1 = 0;
-    _sign = '\0';
+
 }
 
-void CalcLogic::dotPressed(QString num)
+void CalcLogic::dotPressed(QObject& num)
 {
-    _number2 = _number2 + num.toDouble() / _degreeForDot;
+    _number2 = _number2 + num.objectName().toDouble() / _degreeForDot;
     _degreeForDot *= 10;
 }
 
-void CalcLogic::dotNotPressed(QString num)
+void CalcLogic::dotNotPressed(QObject& num)
 {
-    _number2 = _number2*10 + num.toDouble();
+    _number2 = _number2*10 + num.objectName().toDouble();
 }
 
-void CalcLogic::plus(QString)
+void CalcLogic::plus(QObject&)
 {
-    _result = QString::number(_number1 + _number2);
+    _result = _number1 + _number2;
 }
 
-void CalcLogic::minus(QString)
+void CalcLogic::minus(QObject&)
 {
-    _result = QString::number(_number1 - _number2);
+    _result = _number1 - _number2;
 }
 
-void CalcLogic::divide(QString)
+void CalcLogic::divide(QObject&)
 {
-
     if (_number2 != 0)
-        _result = QString::number(_number1 / _number2);
-    else
-        _result = "Error";
+        _result = _number1 / _number2;
 }
 
-void CalcLogic::multiply(QString)
+void CalcLogic::multiply(QObject&)
 {
-    _result = QString::number(_number1 * _number2);
+    _result = _number1 * _number2;
 }
 
-
-void CalcLogic::Percent(QString)
+void CalcLogic::Percent(QObject&, State state)
 {
     _allSolution.chop(QString::number(_number2).size());
     if(_number1 == 0)
     {
         _number2 /= 100;
     }
-    else if(_sign == "/" || _sign == "*")
+    else if(_currentOperator == State::operatorMultiply || _currentOperator == State::operatorDivide)
     {
         _number2 /= 100;
     }

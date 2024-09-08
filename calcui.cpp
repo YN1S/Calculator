@@ -65,9 +65,7 @@ void CalcUI::setDisplayParameters()
 
 void CalcUI::sendButtonToLogic()
 {
-    QObject *button = sender();
-
-    logic.calculator(button->objectName(), buttonAndState.at(button));
+    logic.calculator(sender(), buttonAndState.at(sender()));
 }
 
 void CalcUI::getResultsOfProcessing(QString AllSolution, QString result)

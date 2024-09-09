@@ -7,14 +7,15 @@ CalcLogic::CalcLogic(QObject *parent)
     : QObject(parent)
 { }
 
-void CalcLogic::calculator(QObject* str, State state)
+void CalcLogic::calculator(QObject* button, State state)
 {
     if(_stateToFunc.count(state))
     {
-        _stateToFunc[state](*str, state);
+        _stateToFunc[state](*button, state);
     }
 
-    qDebug() << _number1 << _sign << _number2;
+    qDebug() << "Final: " << _number1 << _number2;
+    emit ResultOfProcessing(button, state, _result);
 }
 
 void CalcLogic::Num(QObject& num, State state)
@@ -25,20 +26,23 @@ void CalcLogic::Num(QObject& num, State state)
 
 void CalcLogic::Sign(QObject& dummy, State state)
 {
-    if(_previoutState == State::inputNumber)
-    {
-        Equal(dummy, state);
-    }
-
-
     if(_currentOperator == State::notSelected)
     {
+        // qDebug() << "SIGN 2-nd if: "  << _number1 << _sign << _number2;
         _number1 = _number2;
         _number2 = 0;
 
         _dotPressed = false;
         _degreeForDot = 10;
     }
+
+    if(_previoutState == State::inputNumber)
+    {
+        // qDebug() << "SIGN 1-st if before: "  << _number1 << _sign << _number2;
+        Equal(dummy, state);
+        // qDebug() << "SIGN 1-st if after: "  << _number1 << _sign << _number2;
+    }
+
 
     _currentOperator = state;
     _previoutState = state;
@@ -54,10 +58,12 @@ void CalcLogic::Erase(QObject& dummy, State state)
     // Аналогичная логика
 }
 
-void CalcLogic::EraseAll(QObject& dummy, State state)
+void CalcLogic::EraseAll(QObject&, State)
 {
     _number1 = 0;
     _number2 = 0;
+    _result = 0;
+
     _currentOperator = State::notSelected;
     _previoutState = State::notSelected;
 
@@ -65,27 +71,24 @@ void CalcLogic::EraseAll(QObject& dummy, State state)
     _degreeForDot = 10;
 }
 
-void CalcLogic::EqualForSolution(QObject& sign)
+void CalcLogic::Equal(QObject& dummy, State state)
 {
-    _dotPressed = false;
-    _degreeForDot = 10;
-}
+    if(_operatorToFunc.count(_currentOperator))
+    {
+        _operatorToFunc[_currentOperator](dummy, state);
+        _number1 = _result;
+        _number2 = 0;
 
-void CalcLogic::EquelForSign()
-{
-    if(_number1 != 0 && _number1 != 0  && _sign != '\0'){
-        _sign = '\0';
+        _dotPressed = false;
+        _degreeForDot = 10;
     }
 }
 
-void CalcLogic::Equal(QObject& dummy, State state)
+void CalcLogic::Percent(QObject& dummy, State state)
 {
-    _operatorToFunc[_currentOperator](dummy, state);
-
-    _number2 = _result;
-    _number1 = 0;
-
+    _percentForOperator.at(_currentOperator)(dummy, state);
 }
+
 
 void CalcLogic::dotPressed(QObject& num)
 {
@@ -119,21 +122,14 @@ void CalcLogic::multiply(QObject&)
     _result = _number1 * _number2;
 }
 
-void CalcLogic::Percent(QObject&, State state)
+void CalcLogic::percentMultiplyOrDivideOrNotSelected(QObject &dummy)
 {
-    _allSolution.chop(QString::number(_number2).size());
-    if(_number1 == 0)
-    {
-        _number2 /= 100;
-    }
-    else if(_currentOperator == State::operatorMultiply || _currentOperator == State::operatorDivide)
-    {
-        _number2 /= 100;
-    }
-    else
-    {
-        _number2 *= _number1 / 100;
-    }
-
-    _allSolution.push_back(QString::number(_number2));
+    _number2 /= 100;
 }
+
+void CalcLogic::percentPlusOrMinus(QObject &dummy)
+{
+    _number2 *= _number1 / 100;
+}
+
+

@@ -68,8 +68,73 @@ void CalcUI::sendButtonToLogic()
     logic.calculator(sender(), buttonAndState.at(sender()));
 }
 
-void CalcUI::getResultsOfProcessing(QString AllSolution, QString result)
+void CalcUI::getResultsOfProcessing(QObject* button, State state, double result)
 {
-    _displaySolving->setText(AllSolution);
-    _displayAnswer->setText(result);
+    _displayAnswer->setText(QString::number(result));
+
+    if(_stateToFunc.count(state))
+    {
+        _stateToFunc[state](*button, state);
+    }
+
+    _displaySolving->setText(_allSolution);
+}
+
+void CalcUI::Num(QObject& num, State state)
+{
+    _allSolution.push_back(num.objectName());
+    _previousStateIsOperator = false;
+}
+
+void CalcUI::Sign(QObject& sign, State state)
+{
+    _drawOperator.at(_previousStateIsOperator)(sign, state);
+
+    _previousStateIsOperator = true;
+}
+
+void CalcUI::Dot(QObject&, State)
+{
+    if(_allSolution.isEmpty())
+    {
+        _allSolution.push_back("0.");
+    }
+    else if(_allSolution.back() != '.')
+    {
+        _allSolution.push_back('.');
+    }
+
+}
+
+void CalcUI::EraseAll(QObject&, State)
+{
+    _allSolution.clear();
+    _previousStateIsOperator = false;
+}
+
+void CalcUI::Equal(QObject& dummy, State state)
+{
+    _allSolution = _displayAnswer->text();
+}
+
+void CalcUI::stateIsOperator(QObject &sign, State)
+{
+    _allSolution.back() = sign.objectName().at(0);
+}
+
+void CalcUI::stateIsNotOperator(QObject &sign, State)
+{
+    if(_allSolution.isEmpty())
+    {
+        _allSolution.push_back('0');
+    }
+    _allSolution.push_back(sign.objectName());
+}
+
+void CalcUI::Percent(QObject&, State state)
+{
+    if(!_allSolution.isEmpty() && _allSolution.back() != '%')
+    {
+        _allSolution.push_back('%');
+    }
 }

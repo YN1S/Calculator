@@ -43,12 +43,12 @@ std::vector<ButtonInfo> buttonsInfoSign
 
 std::vector<QString> buttonsNameOther
     {
-        "AC", "C", "%", ".", "="
+        "AC", /*"C",*/ "%", ".", "="
     };
 
 std::vector<ButtonInfo> buttonsInfoOther
     {
-        {inputEraseAll, 2, 0, 1, 1}, {inputErase,  2, 1, 1, 1}, {inputPercent, 2, 2, 1, 1}, {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
+        {inputEraseAll, 2, 0, 1, 2}, /*{inputErase,  2, 1, 1, 1},*/ {inputPercent, 2, 2, 1, 1}, {inputDot,     6, 2, 1, 1}, {inputEqual,      6, 3, 1, 1}
     };
 
 #endif // BUTTONS_H

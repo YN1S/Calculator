@@ -20,10 +20,8 @@ public:
 
 private:
     double _number1{0};
-    QString _sign{'\0'};
     double _number2{0};
 
-    QString _allSolution;
     double _result;
 
     bool _dotPressed{false};
@@ -33,32 +31,41 @@ private:
     State _previoutState = State::notSelected;
 
     std::map<State, ptrFunc> _stateToFunc
-        {
-            {State::inputDot,         [this](QObject& dummy, State state) { Dot(dummy,      state); }},
-            {State::inputNumber,      [this](QObject& num,   State state) { Num(num,        state); }},
-            {State::operatorPlus,     [this](QObject& sign,  State state) { Sign(sign,      state); }},
-            {State::operatorMinus,    [this](QObject& sign,  State state) { Sign(sign,      state); }},
-            {State::operatorMultiply, [this](QObject& sign,  State state) { Sign(sign,      state); }},
-            {State::operatorDivide,   [this](QObject& sign,  State state) { Sign(sign,      state); }},
-            {State::inputEraseAll,    [this](QObject& dummy, State state) { EraseAll(dummy, state); }},
-            {State::inputErase,       [this](QObject& dummy, State state) { Erase(dummy,    state); }},
-            {State::inputPercent,     [this](QObject& dummy, State state) { Percent(dummy,  state); }},
-            {State::inputEqual,       [this](QObject& dummy, State state) { Equal(dummy,    state); }}
-        };
+    {
+        {State::inputDot,         [this](QObject& dummy, State state) { Dot(dummy,      state); }},
+        {State::inputNumber,      [this](QObject& num,   State state) { Num(num,        state); }},
+        {State::operatorPlus,     [this](QObject& sign,  State state) { Sign(sign,      state); }},
+        {State::operatorMinus,    [this](QObject& sign,  State state) { Sign(sign,      state); }},
+        {State::operatorMultiply, [this](QObject& sign,  State state) { Sign(sign,      state); }},
+        {State::operatorDivide,   [this](QObject& sign,  State state) { Sign(sign,      state); }},
+        {State::inputEraseAll,    [this](QObject& dummy, State state) { EraseAll(dummy, state); }},
+        {State::inputErase,       [this](QObject& dummy, State state) { Erase(dummy,    state); }},
+        {State::inputPercent,     [this](QObject& dummy, State state) { Percent(dummy,  state); }},
+        {State::inputEqual,       [this](QObject& dummy, State state) { Equal(dummy,    state); }}
+    };
 
     std::map<bool, ptrFunc> _inputNumberDependsDot
-        {
-            {true,  [this](QObject& num, State state) { dotPressed(num);    }},
-            {false, [this](QObject& num, State state) { dotNotPressed(num); }},
-        };
+    {
+        {true,  [this](QObject& num, State state) { dotPressed(num);    }},
+        {false, [this](QObject& num, State state) { dotNotPressed(num); }},
+    };
 
     std::map<State, ptrFunc> _operatorToFunc
-        {
-            {State::operatorPlus,     [this](QObject& dummy, State state){ plus(dummy);     }},
-            {State::operatorMinus,    [this](QObject& dummy, State state){ minus(dummy);    }},
-            {State::operatorMultiply, [this](QObject& dummy, State state){ multiply(dummy); }},
-            {State::operatorDivide,   [this](QObject& dummy, State state){ divide(dummy);   }}
-        };
+    {
+        {State::operatorPlus,     [this](QObject& dummy, State state){ plus(dummy);     }},
+        {State::operatorMinus,    [this](QObject& dummy, State state){ minus(dummy);    }},
+        {State::operatorMultiply, [this](QObject& dummy, State state){ multiply(dummy); }},
+        {State::operatorDivide,   [this](QObject& dummy, State state){ divide(dummy);   }}
+    };
+
+    std::map<State, ptrFunc> _percentForOperator
+    {
+        {State::operatorPlus,     [this](QObject& dummy, State state){ percentPlusOrMinus(dummy);                  }},
+        {State::operatorMinus,    [this](QObject& dummy, State state){ percentPlusOrMinus(dummy);                  }},
+        {State::operatorMultiply, [this](QObject& dummy, State state){ percentMultiplyOrDivideOrNotSelected(dummy); }},
+        {State::operatorDivide,   [this](QObject& dummy, State state){ percentMultiplyOrDivideOrNotSelected(dummy); }},
+        {State::notSelected,      [this](QObject& dummy, State state){ percentMultiplyOrDivideOrNotSelected(dummy); }}
+    };
 
 public:
     void calculator(QObject* str, State state);
@@ -84,8 +91,14 @@ private:
     void divide(QObject& dummy);
     void multiply(QObject& dummy);
 
+    void percentMultiplyOrDivideOrNotSelected(QObject& dummy);
+    void percentPlusOrMinus(QObject& dummy);
+
 signals:
-    void ResultOfProcessing(QString AllSolution, QString result);
+    void ResultOfProcessing(QObject* button, State state, double result);
+
+// public slots:
+//     void getPressedButton;
 };
 
 #endif // CALCLOGIC_H

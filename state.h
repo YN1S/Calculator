@@ -11,10 +11,9 @@ enum State
     inputEqual,
     inputPercent,
 
-    operatorDivide,
-    operatorPlus,
-    operatorMinus,
-    operatorMultiply,
+    inputHistory,
+
+    inputOperator,
     notSelected
 };
 
